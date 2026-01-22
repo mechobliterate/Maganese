@@ -302,6 +302,58 @@ label {
     }
 }
 
+.fullscreen-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    transition: all 0.2s ease;
+    padding: 0;
+    outline: none;
+}
+
+.fullscreen-btn:hover {
+    background: var(--accent-color);
+    color: #000;
+    border-color: var(--accent-color);
+    transform: scale(1.05);
+}
+
+.fullscreen-btn:active {
+    transform: scale(0.95);
+}
+
+.fullscreen-btn svg {
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .fullscreen-btn {
+        width: 44px;
+        height: 44px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .fullscreen-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
 @media (max-height: 600px) {
     .control-panel {
         top: 10px;
@@ -309,5 +361,10 @@ label {
 
     .panel-content {
         max-height: calc(100vh - 80px);
+    }
+
+    .fullscreen-btn {
+        bottom: 10px;
+        right: 10px;
     }
 }

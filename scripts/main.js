@@ -33,6 +33,7 @@ const elements = {
   btnRandomLight: document.getElementById("btn-random-light"),
   btnToggleFrame: document.getElementById("btn-toggle-frame"),
   inputFile: document.getElementById("input-file"),
+  btnFullscreen: document.getElementById("btn-fullscreen"),
 };
 
 let state = {
@@ -45,7 +46,11 @@ let state = {
 
 const toggleUI = () => {
   elements.panelContent.classList.toggle("collapsed");
-  elements.btnToggleUI.innerText = elements.panelContent.classList.contains("collapsed") ? "+" : "−";
+  elements.btnToggleUI.innerText = elements.panelContent.classList.contains(
+    "collapsed",
+  )
+    ? "+"
+    : "−";
 };
 
 elements.btnToggleUI.onclick = (e) => {
@@ -65,6 +70,35 @@ tabs.forEach((tab) => {
     tab.classList.add("active");
     document.getElementById(tab.dataset.tab).classList.add("active");
   };
+});
+
+// Fullscreen functionality
+const toggleFullscreen = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch((err) => {
+      console.error("Error attempting to enable fullscreen:", err);
+    });
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+};
+
+elements.btnFullscreen.onclick = toggleFullscreen;
+
+// Update fullscreen button icon when fullscreen state changes
+document.addEventListener("fullscreenchange", () => {
+  const svg = elements.btnFullscreen.querySelector("svg");
+  if (document.fullscreenElement) {
+    // Exit fullscreen icon
+    svg.innerHTML =
+      '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" stroke="currentColor" stroke-width="2" fill="none"/>';
+  } else {
+    // Enter fullscreen icon
+    svg.innerHTML =
+      '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" fill="none"/>';
+  }
 });
 
 const canvas = document.getElementById("three-canvas");
@@ -87,7 +121,7 @@ const camera = new THREE.PerspectiveCamera(
   45,
   window.innerWidth / window.innerHeight,
   0.1,
-  100
+  100,
 );
 
 const uiCanvas = document.createElement("canvas");
@@ -137,7 +171,7 @@ function updateUIFrameTexture() {
     startX,
     y - titleH - menuH,
     startX,
-    y + sh
+    y + sh,
   );
   glassGrad.addColorStop(0, "rgba(255, 255, 255, 0.25)");
   glassGrad.addColorStop(1, "rgba(255, 255, 255, 0.1)");
@@ -148,7 +182,7 @@ function updateUIFrameTexture() {
     y - titleH - menuH,
     totalW,
     sh + titleH + menuH + borderWidth,
-    radius
+    radius,
   );
   uiCtx.fill();
   uiCtx.strokeStyle = "rgba(255, 255, 255, 0.3)";
@@ -264,7 +298,7 @@ const cubePlanes = ["front", "top", "bottom", "left", "right"].reduce(
     acc[side] = p;
     return acc;
   },
-  {}
+  {},
 );
 scene.add(cubeGroup);
 
@@ -278,7 +312,7 @@ const holePlanes = ["back", "top", "bottom", "left", "right"].reduce(
     acc[side] = p;
     return acc;
   },
-  {}
+  {},
 );
 scene.add(holeGroup);
 
@@ -309,8 +343,10 @@ function applyMode() {
   const mode = elements.selectMode.value;
   const aspect = window.innerWidth / window.innerHeight;
 
-  document.getElementById("cube-params").style.display = mode === "CUBE" ? "block" : "none";
-  document.getElementById("hole-params").style.display = mode === "HOLE" ? "block" : "none";
+  document.getElementById("cube-params").style.display =
+    mode === "CUBE" ? "block" : "none";
+  document.getElementById("hole-params").style.display =
+    mode === "HOLE" ? "block" : "none";
 
   if (mode === "CUBE") {
     wall.castShadow = false;
@@ -411,7 +447,9 @@ elements.btnShadow.onclick = () => {
   state.shadowsEnabled = !state.shadowsEnabled;
   renderer.shadowMap.enabled = state.shadowsEnabled;
 
-  const MaterialClass = state.shadowsEnabled ? THREE.MeshStandardMaterial : THREE.MeshBasicMaterial;
+  const MaterialClass = state.shadowsEnabled
+    ? THREE.MeshStandardMaterial
+    : THREE.MeshBasicMaterial;
 
   wall.material = new MaterialClass({
     map: state.frameEnabled ? uiTexture : currentTexture,
@@ -422,7 +460,7 @@ elements.btnShadow.onclick = () => {
   [...Object.values(cubePlanes), ...Object.values(holePlanes)].forEach((m) => {
     m.material = new MaterialClass({
       map: currentTexture,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
     });
 
     if (state.shadowsEnabled) {
@@ -483,12 +521,14 @@ elements.btnRandomLight.onclick = () => {
   spotLight.position.set(
     (Math.random() - 0.5) * 20,
     (Math.random() - 0.5) * 20,
-    5 + Math.random() * 15
+    5 + Math.random() * 15,
   );
   spotLight.lookAt(
     0,
     0,
-    elements.selectMode.value === "HOLE" ? -parseFloat(elements.rangeHoleDepth.value) / 2 : 0
+    elements.selectMode.value === "HOLE"
+      ? -parseFloat(elements.rangeHoleDepth.value) / 2
+      : 0,
   );
 };
 
@@ -506,7 +546,7 @@ window.addEventListener("resize", () => {
 
 async function main() {
   const vision = await FilesetResolver.forVisionTasks(
-    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm",
   );
 
   const faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
@@ -527,7 +567,10 @@ async function main() {
   await elements.video.play();
 
   function loop() {
-    const result = faceLandmarker.detectForVideo(elements.video, performance.now());
+    const result = faceLandmarker.detectForVideo(
+      elements.video,
+      performance.now(),
+    );
 
     if (result.faceLandmarks?.[0]) {
       const nose = result.faceLandmarks[0][1];
@@ -537,11 +580,15 @@ async function main() {
       elements.rawYDisp.textContent = nose.y.toFixed(2);
       elements.rawZDisp.textContent = (nose.z * 10).toFixed(2);
 
-      const hX = (nose.x - state.offset.x) * -2 * parseFloat(elements.rangeMove.value);
-      const hY = (nose.y - state.offset.y) * -2 * parseFloat(elements.rangeMove.value);
+      const hX =
+        (nose.x - state.offset.x) * -2 * parseFloat(elements.rangeMove.value);
+      const hY =
+        (nose.y - state.offset.y) * -2 * parseFloat(elements.rangeMove.value);
 
       state.smoothedZ += (nose.z - state.smoothedZ) * 0.2;
-      const hZ = parseFloat(elements.rangeDepth.value) + state.smoothedZ * parseFloat(elements.rangeZSens.value);
+      const hZ =
+        parseFloat(elements.rangeDepth.value) +
+        state.smoothedZ * parseFloat(elements.rangeZSens.value);
 
       camera.position.set(hX, hY, Math.max(0.2, hZ));
 
@@ -554,7 +601,7 @@ async function main() {
         nOverZ * (1 - hY),
         nOverZ * (-1 - hY),
         camera.near,
-        camera.far
+        camera.far,
       );
     }
 
